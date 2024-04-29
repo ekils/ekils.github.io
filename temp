@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTML Document</title>
+    <style>
+        a {
+            font-size: 100px;
+        }
+    </style>
+</head>
+<body>
+</body></html>
