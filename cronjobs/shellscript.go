@@ -117,7 +117,7 @@ func Script(companies []string) error {
 		envVars := os.Environ()
 		// 打印每个环境变量
 		for _, envVar := range envVars {
-			fmt.Printf("環境變數:%v", envVar)
+			fmt.Printf("環境變數:%v \n", envVar)
 		}
 
 		if err := combinedCmd.Run(); err != nil {
