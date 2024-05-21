@@ -3,7 +3,6 @@ package cronjobs
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -116,7 +115,7 @@ func Script(companies []string) error {
 		// 创建一个临时脚本来返回 GitHub 令牌
 		scriptContent := fmt.Sprintf("#!/bin/sh\necho %s\n", githubToken)
 		scriptPath := filepath.Join(os.TempDir(), "git-askpass.sh")
-		err := ioutil.WriteFile(scriptPath, []byte(scriptContent), 0700)
+		err := os.WriteFile(scriptPath, []byte(scriptContent), 0700)
 		if err != nil {
 			fmt.Println("Failed to create script:", err)
 			return err
