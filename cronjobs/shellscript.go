@@ -94,7 +94,7 @@ func Script(companies []string) error {
 	// 推送到GitHub
 	fmt.Println("腳本: 4")
 	fmt.Println("目前所在的工作目錄4:", string(output))
-	cmd = `git push ;`
+	cmd = `git push --set-upstream https://github.com/ekils/ekils.github.io.git main ;`
 	combinedCmd = exec.Command("sh", "-c", cmd)
 
 	combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
