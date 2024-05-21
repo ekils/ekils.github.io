@@ -93,13 +93,12 @@ func Script(companies []string) error {
 		fmt.Println("執行命令時發生錯誤3-2:", err)
 		return err
 	}
-
 	gitStatusOutput := out.String()
 	if strings.TrimSpace(gitStatusOutput) == "" {
 		fmt.Println("沒有檔案更新, 不用推 git")
 		return nil
 	} else {
-		fmt.Println("腳本: 3-3")
+		fmt.Printf("腳本: 3-3(gitStatusOutput): %v", gitStatusOutput)
 		cmd = `
 			git add .;
 			git commit -m "Modify Version: $current_date";`
