@@ -1,10 +1,12 @@
 package cronjobs
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func Script(companies []string) error {
@@ -83,27 +85,43 @@ func Script(companies []string) error {
 	}
 	fmt.Println("腳本: 3-2")
 	cmd = `
-		git add .;
-		git commit -m "Modify Version: $current_date";`
+	   git status --porcelain;`
 	combinedCmd = exec.Command("sh", "-c", cmd)
+	var out bytes.Buffer
+	combinedCmd.Stdout = &out
 	if err := combinedCmd.Run(); err != nil {
 		fmt.Println("執行命令時發生錯誤3-2:", err)
 		return err
 	}
 
-	// 推送到GitHub
-	fmt.Println("腳本: 4")
-	fmt.Println("目前所在的工作目錄4:", string(output))
-	cmd = `git push --set-upstream https://github.com/ekils/ekils.github.io.git main ;`
-	combinedCmd = exec.Command("sh", "-c", cmd)
-
-	combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
-	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤4:", err)
-		return err
-	} else {
-		fmt.Println("shell script done ..")
+	gitStatusOutput := out.String()
+	if strings.TrimSpace(gitStatusOutput) == "" {
+		fmt.Println("沒有檔案更新, 不用推 git")
 		return nil
+	} else {
+		fmt.Println("腳本: 3-3")
+		cmd = `
+			git add .;
+			git commit -m "Modify Version: $current_date";`
+		combinedCmd = exec.Command("sh", "-c", cmd)
+		if err := combinedCmd.Run(); err != nil {
+			fmt.Println("執行命令時發生錯誤3-3:", err)
+			return err
+		}
+		// 推送到GitHub
+		fmt.Println("腳本: 4")
+		fmt.Println("目前所在的工作目錄4:", string(output))
+		cmd = `git push --set-upstream https://github.com/ekils/ekils.github.io.git main ;`
+		combinedCmd = exec.Command("sh", "-c", cmd)
+
+		combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
+		if err := combinedCmd.Run(); err != nil {
+			fmt.Println("執行命令時發生錯誤4:", err)
+			return err
+		} else {
+			fmt.Println("shell script done ..")
+			return nil
+		}
 	}
 }
 
