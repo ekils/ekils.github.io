@@ -111,7 +111,7 @@ func Script(companies []string) error {
 
 		fmt.Println("腳本: 4")
 		fmt.Println("目前所在的工作目錄4:", string(output))
-		cmd = `export GT=` + githubToken + ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
+		cmd = ` export GT=` + githubToken + ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
 
 		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
