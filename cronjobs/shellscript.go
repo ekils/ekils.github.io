@@ -121,6 +121,7 @@ func Script(companies []string) error {
 		// }
 		cmd = ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
+		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
 		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GIT_ASKPASS=%s", scriptPath))
 
 		// 清理临时脚本
