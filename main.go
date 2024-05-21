@@ -134,7 +134,7 @@ func main() {
 		cronjobs.CronJobs()
 		// 計算下一次執行時間
 		// nextRun = nextRun.Add(time.Hour * 24)
-		nextRun = nextRun.Add(time.Minute * 1) //測試用
+		nextRun = nextRun.Add(time.Hour * 1) //測試用
 	}
 
 }
