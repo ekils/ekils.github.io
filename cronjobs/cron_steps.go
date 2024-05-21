@@ -1,6 +1,7 @@
 package cronjobs
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -27,22 +28,27 @@ func CronJobs() {
 	reuslt, companies, err := ParsePrice("NYSE", "STOCKHISTORY", "Company")
 	if err != nil {
 		log.Println(err)
+		fmt.Println(err)
 	}
 	log.Println(reuslt)
+	fmt.Println(reuslt)
 
 	// Step2: 取得股價 parse price history:
 	reuslt_map_price, err := GetPrice_Historical("NYSE", "STOCKHISTORY", "Company", companies)
 	// log.Printf("reuslt_map_price: %v", reuslt_map_price)
 	if err != nil {
 		log.Println(err)
+		fmt.Println(err)
 	}
 
 	// // Step3: 取得eps parse eps history:(不用parse eps 是因為這是手動增加)
 	reuslt_map_eps, ok_companies, err := GetEPS_Historical("NYSE", "Company", companies)
 	log.Printf("reuslt_map_eps: %v", reuslt_map_eps)
+	fmt.Printf("reuslt_map_eps: %v", reuslt_map_eps)
 
 	if err != nil {
 		log.Println(err)
+		fmt.Println(err)
 	}
 
 	// Step3: gen pe-ratio report to db :
@@ -50,8 +56,10 @@ func CronJobs() {
 	response, err = GenPE_Ratio(reuslt_map_price, reuslt_map_eps)
 	if err != nil {
 		log.Println(err)
+		fmt.Println(err)
 	} else {
 		log.Println(response)
+		fmt.Println(response)
 	}
 	// Step4: Gen plot link
 	// var companies = []string{"AAPL"}
@@ -62,6 +70,7 @@ func CronJobs() {
 		Script(ok_companies)
 	} else {
 		log.Println("EPS Table都沒有資料, 請先Update")
+		fmt.Println("EPS Table都沒有資料, 請先Update")
 	}
 
 }
