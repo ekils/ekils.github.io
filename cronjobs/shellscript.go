@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 )
@@ -21,7 +20,7 @@ func Script(companies []string) error {
 	fmt.Printf("腳本: 0-1(githubToken): %v \n", githubToken)
 	// 设置Git配置，使用GitHub Token进行身份验证
 	gitConfigCmd := exec.Command("git", "config", "--global", "credential.helper", "!f() { echo username=x-access-token; echo password=$GT; }; f")
-	gitConfigCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
+	// gitConfigCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
 	if err := gitConfigCmd.Run(); err != nil {
 		log.Fatalf("Failed to configure git: %v", err)
 	}
