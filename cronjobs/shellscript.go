@@ -94,9 +94,11 @@ func Script(companies []string) error {
 	// 推送到GitHub
 	fmt.Println("腳本: 4")
 	fmt.Println("目前所在的工作目錄4:", string(output))
-	pushCmd := exec.Command("git", "push", "origin", "main")
-	pushCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
-	if err := pushCmd.Run(); err != nil {
+	cmd = `git push ;`
+	combinedCmd = exec.Command("sh", "-c", cmd)
+
+	combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
+	if err := combinedCmd.Run(); err != nil {
 		fmt.Println("執行命令時發生錯誤4:", err)
 		return err
 	} else {
