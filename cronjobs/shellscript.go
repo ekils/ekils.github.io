@@ -87,7 +87,7 @@ func Script(companies []string) error {
 		git commit -m "Modify Version: $current_date";`
 	combinedCmd = exec.Command("sh", "-c", cmd)
 	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤3-2: ", err)
+		fmt.Println("執行命令時發生錯誤3-2:", err)
 		return err
 	}
 
