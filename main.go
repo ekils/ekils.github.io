@@ -121,7 +121,7 @@ func main() {
 	nextRun := time.Date(now.Year(), now.Month(), now.Day(), hour_setting, minutes_setting, 0, 0, now.Location()).Add(time.Minute)
 	if now.After(nextRun) {
 		// nextRun = nextRun.Add(time.Hour * 24)
-		nextRun = nextRun.Add(time.Minute * 2) //測試用
+		nextRun = nextRun.Add(time.Minute * 1) //測試用
 	}
 
 	// 循環執行
@@ -134,7 +134,7 @@ func main() {
 		cronjobs.CronJobs()
 		// 計算下一次執行時間
 		// nextRun = nextRun.Add(time.Hour * 24)
-		nextRun = nextRun.Add(time.Minute * 10) //測試用
+		nextRun = nextRun.Add(time.Minute * 1) //測試用
 	}
 
 }
