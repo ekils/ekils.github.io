@@ -112,8 +112,14 @@ func Script(companies []string) error {
 		fmt.Println("目前所在的工作目錄4:", string(output))
 		cmd = ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
-
 		combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
+
+		envVars := os.Environ()
+		// 打印每个环境变量
+		for _, envVar := range envVars {
+			fmt.Printf("環境變數:%v", envVar)
+		}
+
 		if err := combinedCmd.Run(); err != nil {
 			fmt.Println("執行命令時發生錯誤4:", err)
 			return err
