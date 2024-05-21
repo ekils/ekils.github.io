@@ -83,14 +83,24 @@ func Script(companies []string) error {
 		fmt.Println("執行命令時發生錯誤3-1:", err)
 		return err
 	}
+
 	fmt.Println("腳本: 3-2")
+	cmd = `
+	git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GT; }; f'`
+	combinedCmd = exec.Command("sh", "-c", cmd)
+	if err := combinedCmd.Run(); err != nil {
+		fmt.Println("執行命令時發生錯誤3-2:", err)
+		return err
+	}
+
+	fmt.Println("腳本: 3-3")
 	cmd = `
 	   git status --porcelain; `
 	combinedCmd = exec.Command("sh", "-c", cmd)
 	var out bytes.Buffer
 	combinedCmd.Stdout = &out
 	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤3-2:", err)
+		fmt.Println("執行命令時發生錯誤3-3:", err)
 		return err
 	}
 	gitStatusOutput := out.String()
@@ -98,13 +108,13 @@ func Script(companies []string) error {
 		fmt.Println("沒有檔案更新, 不用推 git")
 		return nil
 	} else {
-		fmt.Printf("腳本: 3-3(有更新檔案): %v", gitStatusOutput)
+		fmt.Printf("腳本: 3-4(有更新檔案): %v", gitStatusOutput)
 		cmd = `
 			git add .;
 			git commit -m "Modify Version: $current_date";`
 		combinedCmd = exec.Command("sh", "-c", cmd)
 		if err := combinedCmd.Run(); err != nil {
-			fmt.Println("執行命令時發生錯誤3-3:", err)
+			fmt.Println("執行命令時發生錯誤3-4:", err)
 			return err
 		}
 		// 推送到GitHub
