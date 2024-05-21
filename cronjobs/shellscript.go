@@ -13,8 +13,8 @@ func Script(companies []string) error {
 
 	fmt.Println("腳本: 0")
 	// 从环境变量中获取GitHub Token
-	gt := "ok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"
-	githubToken := gt[1:]
+	gt := "abcd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"
+	githubToken := gt[3:]
 	if githubToken == "" {
 		log.Fatal("GT is not set")
 	}
@@ -85,7 +85,7 @@ func Script(companies []string) error {
 	}
 	fmt.Println("腳本: 3-2")
 	cmd = `
-	   git status --porcelain;`
+	   git status --porcelain; `
 	combinedCmd = exec.Command("sh", "-c", cmd)
 	var out bytes.Buffer
 	combinedCmd.Stdout = &out
@@ -98,7 +98,7 @@ func Script(companies []string) error {
 		fmt.Println("沒有檔案更新, 不用推 git")
 		return nil
 	} else {
-		fmt.Printf("腳本: 3-3(gitStatusOutput): %v", gitStatusOutput)
+		fmt.Printf("腳本: 3-3(有更新檔案): %v", gitStatusOutput)
 		cmd = `
 			git add .;
 			git commit -m "Modify Version: $current_date";`
@@ -108,9 +108,10 @@ func Script(companies []string) error {
 			return err
 		}
 		// 推送到GitHub
+
 		fmt.Println("腳本: 4")
 		fmt.Println("目前所在的工作目錄4:", string(output))
-		cmd = `git push --set-upstream https://github.com/ekils/ekils.github.io.git main ;`
+		cmd = githubToken + ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
 
 		combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
