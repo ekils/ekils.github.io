@@ -68,3 +68,5 @@ func Script(companies []string) error {
 	return nil
 
 }
+
+//api key: rnd_TUXka6fC14B8euPEBVXpN3UhFif5

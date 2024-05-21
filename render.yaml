@@ -1,6 +1,6 @@
 services:
 - type: web
-  name: linebot-gemini-pro
+  name: ekils.github.io
   env: go
   buildCommand: go build -o app
   startCommand: ./app
@@ -13,3 +13,4 @@ services:
     sync: false
   - key: GOOGLE_GEMINI_API_KEY
     sync: false
+

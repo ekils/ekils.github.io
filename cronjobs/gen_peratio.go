@@ -17,7 +17,7 @@ var dict = make(map[string]float64)
 
 func GenPE_Ratio(reuslt_map_price map[string][]Price_RowData, reuslt_map_eps map[string][]EPS_RowData) (string, error) {
 
-	file, _ := os.Create("/home/vagrant/go_project/ekils.github.io/logs/Write-to-PE.log")
+	file, _ := os.Create("logs/Write-to-PE.log")
 	log.SetOutput(file)
 
 	for company, eps_struct := range reuslt_map_eps {

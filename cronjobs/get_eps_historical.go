@@ -17,7 +17,7 @@ func GetEPS_Historical(table string, stock string, companies []string) (map[stri
 	var rowData EPS_RowData
 	reuslt_map := make(map[string][]EPS_RowData)
 
-	file, _ := os.Create("/home/vagrant/go_project/ekils.github.io/logs/Write-to-PE.log")
+	file, _ := os.Create("logs/Write-to-PE.log")
 	log.SetOutput(file)
 
 	// companies := GetSubsCompanies(table, stock)

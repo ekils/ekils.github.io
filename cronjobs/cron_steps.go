@@ -20,7 +20,7 @@ import (
 */
 func CronJobs() {
 
-	file, _ := os.Create("/home/vagrant/go_project/ekils.github.io/logs/Write-to-PE.log")
+	file, _ := os.Create("/logs/Write-to-PE.log")
 	log.SetOutput(file)
 
 	// Step1: 更新股價資訊 parse price history:

@@ -21,7 +21,7 @@ var (
 
 func ParsePrice(sub_table string, parse_table string, col string) (string, []string, error) {
 
-	file, _ := os.Create("/home/vagrant/go_project/ekils.github.io/logs/Write-to-PE.log")
+	file, _ := os.Create("/logs/Write-to-PE.log")
 	log.SetOutput(file)
 
 	companies := GetSubsCompanies(sub_table, col)

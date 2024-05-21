@@ -14,7 +14,7 @@ type Price_RowData struct {
 
 func GetPrice_Historical(sub_table string, parse_table string, col string, companies []string) (map[string][]Price_RowData, error) {
 
-	file, _ := os.Create("/home/vagrant/go_project/ekils.github.io/logs/Write-to-PE.log")
+	file, _ := os.Create("/logs/Write-to-PE.log")
 	log.SetOutput(file)
 
 	var rowData Price_RowData
