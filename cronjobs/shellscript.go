@@ -3,9 +3,11 @@ package cronjobs
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -110,15 +112,20 @@ func Script(companies []string) error {
 		// 推送到GitHub
 		fmt.Println("腳本: 4")
 		fmt.Println("目前所在的工作目錄4:", string(output))
+
+		// 创建一个临时脚本来返回 GitHub 令牌
+		scriptContent := fmt.Sprintf("#!/bin/sh\necho %s\n", githubToken)
+		scriptPath := filepath.Join(os.TempDir(), "git-askpass.sh")
+		err := ioutil.WriteFile(scriptPath, []byte(scriptContent), 0700)
+		if err != nil {
+			fmt.Println("Failed to create script:", err)
+			return err
+		}
+
 		cmd = ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
-		combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
-
-		envVars := os.Environ()
-		// 打印每个环境变量
-		for _, envVar := range envVars {
-			fmt.Printf("環境變數:%v \n", envVar)
-		}
+		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
+		combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GIT_ASKPASS=%s", scriptPath))
 
 		if err := combinedCmd.Run(); err != nil {
 			fmt.Println("執行命令時發生錯誤4:", err)
