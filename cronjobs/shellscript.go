@@ -74,7 +74,8 @@ func Script(companies []string) error {
 
 	fmt.Println("腳本: 3-1")
 	cmd = `
-		git config --global user.email "bobobo746@hotmail.com";`
+		git config --global user.email "bobobo746@hotmail.com";
+		git config --global user.name "ekils";`
 	combinedCmd = exec.Command("sh", "-c", cmd)
 	if err := combinedCmd.Run(); err != nil {
 		fmt.Println("執行命令時發生錯誤3-1:", err)
@@ -82,7 +83,6 @@ func Script(companies []string) error {
 	}
 	fmt.Println("腳本: 3-2")
 	cmd = `
-		git config --global user.name "ekils";
 		git add .;
 		git commit -m "Modify Version: $current_date";`
 	combinedCmd = exec.Command("sh", "-c", cmd)
