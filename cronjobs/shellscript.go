@@ -121,7 +121,6 @@ func Script(companies []string) error {
 			fmt.Println("Failed to create script:", err)
 			return err
 		}
-
 		cmd = ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
 		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
