@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -19,11 +20,11 @@ func Script(companies []string) error {
 	}
 	fmt.Printf("腳本: 0-1(githubToken): %v \n", githubToken)
 	// 设置Git配置，使用GitHub Token进行身份验证
-	// gitConfigCmd := exec.Command("git", "config", "--global", "credential.helper", "!f() { echo username=x-access-token; echo password=$GT; }; f")
-	// gitConfigCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
-	// if err := gitConfigCmd.Run(); err != nil {
-	// 	log.Fatalf("Failed to configure git: %v", err)
-	// }
+	gitConfigCmd := exec.Command("git", "config", "--global", "credential.helper", "!f() { echo username=x-access-token; echo password=$GT; }; f")
+	gitConfigCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
+	if err := gitConfigCmd.Run(); err != nil {
+		log.Fatalf("Failed to configure git: %v", err)
+	}
 	fmt.Println("腳本: 0-2 ")
 	combinedCmd := exec.Command("sh", "-c", `pwd`)
 	output, err := combinedCmd.Output()
@@ -90,6 +91,12 @@ func Script(companies []string) error {
 	if err := combinedCmd.Run(); err != nil {
 		fmt.Println("執行命令時發生錯誤3-2:", err)
 		return err
+	}
+
+	// 打印所有环境变量（可选）
+	fmt.Println("Environment variables before executing command:")
+	for _, envVar := range combinedCmd.Env {
+		fmt.Printf("環境變數: %v \n", envVar)
 	}
 
 	fmt.Println("腳本: 3-3")
