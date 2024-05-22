@@ -3,7 +3,6 @@ package cronjobs
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -22,7 +21,8 @@ func Script(companies []string) error {
 	fmt.Println("腳本: 前置作業 email, name setting .....")
 	cmd := `
 	git config --global user.email "bobobo746@hotmail.com";
-	git config --global user.name "ekils"`
+	git config --global user.name "ekils"
+	`
 
 	combinedCmd := exec.Command("sh", "-c", cmd)
 	if err := combinedCmd.Run(); err != nil {
@@ -46,11 +46,13 @@ func Script(companies []string) error {
 		return err
 	}
 
-	fmt.Println("腳本: 0")
-	gt := "abcd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"
-	githubToken := gt[3:]
-	if githubToken == "" {
-		log.Fatal("GT is not set")
+	fmt.Println("腳本: checkout")
+	cmd = `
+	git checkout main`
+	combinedCmd = exec.Command("sh", "-c", cmd)
+	if err := combinedCmd.Run(); err != nil {
+		fmt.Println("checkout 發生錯誤 :", err)
+		return err
 	}
 
 	fmt.Println("腳本: 1")

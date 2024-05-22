@@ -39,6 +39,28 @@ func CronJobs() {
 		fmt.Printf("Cron Step 清空 Html檔案出錯......: %v", err)
 	}
 
+	// fmt.Println("腳本: 前置作業 git init ")
+	// // 初始化Git仓库（如果尚未初始化）
+	// if _, err := os.Stat(".git"); os.IsNotExist(err) {
+	// 	if err := exec.Command("git", "init").Run(); err != nil {
+	// 		fmt.Printf("Failed to initialize git repository: %v", err)
+	// 	}
+	// }
+
+	// fmt.Println("腳本: 前置作業  setting .....")
+	// cmd = `
+	// 	echo "[user]" > /opt/render/.gitconfig ;
+	// 	echo "    email = bobobo746@hotmail.com" >> /opt/render/.gitconfig;
+	// 	echo "    name = ekils" >> /opt/render/.gitconfig;
+	// 	echo "[credential]" >> /opt/render/.gitconfig;
+	// 	echo '    helper = "!f() { echo username=x-access-token; echo password=$GT; }; f"' >> /opt/render/.gitconfig
+	// 	`
+
+	// combinedCmd = exec.Command("sh", "-c", cmd)
+	// if err := combinedCmd.Run(); err != nil {
+	// 	fmt.Println("setting 發生錯誤:", err)
+	// }
+
 	// Step1: 更新股價資訊 parse price history:
 	reuslt, companies, err := ParsePrice("NYSE", "STOCKHISTORY", "Company")
 	if err != nil {
