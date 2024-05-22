@@ -152,3 +152,21 @@ func Script(companies []string) error {
 func isRemoteAlreadyExists(err error) bool {
 	return err != nil && err.Error() == "exit status 128"
 }
+
+// 備註:
+// git config --global --list
+// git config --global credential.helper store
+// git config --global --unset credential.helper
+
+// credential.helper=!f() { echo username=x-access-token; echo password=$GT; }; f
+
+// git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GT; }; f'
+
+// echo "[user]" > /opt/render/.gitconfig ;
+// echo "    email = bobobo746@hotmail.com" >> /opt/render/.gitconfig;
+// echo "    name = ekils" >> /opt/render/.gitconfig;
+// echo "[credential]" >> /opt/render/.gitconfig;
+// echo '    helper = "!f() { echo username=x-access-token; echo password=$GT; }; f"' >> /opt/render/.gitconfig
+
+// render@srv-cp64qq021fec738b7gdg-774f9f8b79-4gtcv:~/project/go/src/github.com/ekils/ekils.github.io$ pwd
+// /opt/render/project/go/src/github.com/ekils/ekils.github.io
