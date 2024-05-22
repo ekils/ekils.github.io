@@ -415,9 +415,7 @@ func Data2Html(resp *http.Response, company string) error {
 		return err
 	}
 
-	now := time.Now()
-	formattedTime := now.Format("2006-01-02-15-04")
-	filr_path := fmt.Sprintf(html_location+"PE_Trend_%s_%s.html", company, formattedTime)
+	filr_path := fmt.Sprintf(html_location+"PE_Trend_%s.html", company)
 	err = os.WriteFile(filr_path, htmlContent, os.ModePerm)
 	if err != nil {
 		fmt.Println("Error:", err)

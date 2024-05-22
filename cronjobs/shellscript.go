@@ -15,41 +15,55 @@ func Script(companies []string) error {
 	// 初始化Git仓库（如果尚未初始化）
 	if _, err := os.Stat(".git"); os.IsNotExist(err) {
 		if err := exec.Command("git", "init").Run(); err != nil {
-			log.Fatalf("Failed to initialize git repository: %v", err)
+			fmt.Printf("Failed to initialize git repository: %v", err)
 		}
 	}
 
-	fmt.Println("腳本:设置远程仓库URL")
+	fmt.Println("腳本: 前置作業 email, name setting .....")
+	cmd := `
+	git config --global user.email "bobobo746@hotmail.com";
+	git config --global user.name "ekils"`
+
+	combinedCmd := exec.Command("sh", "-c", cmd)
+	if err := combinedCmd.Run(); err != nil {
+		fmt.Println("email, name setting 發生錯誤:", err)
+		return err
+	}
+
+	fmt.Println("腳本: 前置作業 credential.helper ")
+	cmd = `
+	git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GT; }; f'`
+	combinedCmd = exec.Command("sh", "-c", cmd)
+	if err := combinedCmd.Run(); err != nil {
+		fmt.Println("credential.helper 發生錯誤 :", err)
+		return err
+	}
+
+	fmt.Println("腳本:設置遠程git hub URL")
 	remoteURL := "https://github.com/ekils/ekils.github.io.git`"
 	if err := exec.Command("git", "remote", "add", "origin", remoteURL).Run(); err != nil && !isRemoteAlreadyExists(err) {
-		log.Fatalf("Failed to set remote repository: %v", err)
+		fmt.Printf("Failed to set remote repository: %v", err)
+		return err
 	}
 
 	fmt.Println("腳本: 0")
-	// 从环境变量中获取GitHub Token
 	gt := "abcd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"
 	githubToken := gt[3:]
 	if githubToken == "" {
 		log.Fatal("GT is not set")
 	}
-	fmt.Printf("腳本: 0-1(githubToken): %v \n", githubToken)
-	// 设置Git配置，使用GitHub Token进行身份验证
-	gitConfigCmd := exec.Command("git", "config", "--global", "credential.helper", "!f() { echo username=x-access-token; echo password=$GT; }; f")
-	// gitConfigCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
-	if err := gitConfigCmd.Run(); err != nil {
-		log.Fatalf("Failed to configure git: %v", err)
-	}
-	fmt.Println("腳本: 0-2 ")
-	combinedCmd := exec.Command("sh", "-c", `pwd`)
-	output, err := combinedCmd.Output()
+
+	fmt.Println("腳本: 1")
+	outCmd := exec.Command("sh", "-c", `pwd`)
+	output, err := outCmd.Output()
 	if err != nil {
 		fmt.Println("執行命令時發生錯誤:", err)
 		return err
 	}
-	fmt.Println("腳本: 1")
-	fmt.Println("目前所在的工作目錄1:", string(output))
+
+	fmt.Println("目前所在的工作目錄:", string(output))
 	// 1
-	cmd := `
+	cmd = `
 	rm -rf ./plot/*.html;
 	cp ./html/*.html ./plot/;
 	cp temp ./plot/index.html;
@@ -63,7 +77,6 @@ func Script(companies []string) error {
 	}
 	//2
 	fmt.Println("腳本: 2")
-	fmt.Println("目前所在的工作目錄2:", string(output))
 	for _, company := range companies {
 
 		cmd := fmt.Sprintf(`
@@ -77,7 +90,6 @@ func Script(companies []string) error {
 	}
 	//3
 	fmt.Println("腳本: 3")
-	fmt.Println("目前所在的工作目錄3:", string(output))
 	cmd = `
 		cd plot;
 		echo " </body></html>"  >> index.html
@@ -89,39 +101,21 @@ func Script(companies []string) error {
 	}
 
 	fmt.Println("腳本: 3-1")
-	cmd = `
-		git config --global user.email "bobobo746@hotmail.com";
-		git config --global user.name "ekils";`
+	cmd = `git ls-remote https://github.com/ekils/ekils.github.io.git`
 	combinedCmd = exec.Command("sh", "-c", cmd)
 	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤3-1:", err)
+		fmt.Println("執行命令時發生錯誤3-1 : Git 登入失敗:", err)
 		return err
 	}
 
 	fmt.Println("腳本: 3-2")
-	cmd = `
-	git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GT; }; f'`
-	combinedCmd = exec.Command("sh", "-c", cmd)
-	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤3-2:", err)
-		return err
-	}
-
-	cmd = `git ls-remote https://github.com/ekils/ekils.github.io.git`
-	combinedCmd = exec.Command("sh", "-c", cmd)
-	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤3-2 : Git 登入失敗:", err)
-		return err
-	}
-
-	fmt.Println("腳本: 3-3")
 	cmd = `
 	   git status --porcelain; `
 	combinedCmd = exec.Command("sh", "-c", cmd)
 	var out bytes.Buffer
 	combinedCmd.Stdout = &out
 	if err := combinedCmd.Run(); err != nil {
-		fmt.Println("執行命令時發生錯誤3-3:", err)
+		fmt.Println("執行命令時發生錯誤3-2:", err)
 		return err
 	}
 	gitStatusOutput := out.String()
@@ -140,27 +134,8 @@ func Script(companies []string) error {
 		}
 		// 推送到GitHub
 		fmt.Println("腳本: 4")
-		fmt.Println("目前所在的工作目錄4:", string(output))
-
-		// 创建一个临时脚本来返回 GitHub 令牌
-		// scriptContent := fmt.Sprintf("#!/bin/sh\necho %s\n", githubToken)
-		// scriptPath := filepath.Join(os.TempDir(), "git-askpass.sh")
-		// err := os.WriteFile(scriptPath, []byte(scriptContent), 0700)
-		// if err != nil {
-		// 	fmt.Println("Failed to create script:", err)
-		// 	return err
-		// }
 		cmd = ` git push --set-upstream https://github.com/ekils/ekils.github.io.git main; `
 		combinedCmd = exec.Command("sh", "-c", cmd)
-		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GT=%s", githubToken))
-		// combinedCmd.Env = append(os.Environ(), fmt.Sprintf("GIT_ASKPASS=%s", scriptPath))
-
-		// 清理临时脚本
-		// err = os.Remove(scriptPath)
-		// if err != nil {
-		// 	fmt.Println("Failed to remove script:", err)
-		// }
-
 		if err := combinedCmd.Run(); err != nil {
 			fmt.Println("執行命令時發生錯誤4:", err)
 			return err
@@ -175,5 +150,3 @@ func Script(companies []string) error {
 func isRemoteAlreadyExists(err error) bool {
 	return err != nil && err.Error() == "exit status 128"
 }
-
-//api key: rnd_TUXka6fC14B8euPEBVXpN3UhFif5
