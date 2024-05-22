@@ -4,11 +4,26 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 )
 
 func Script(companies []string) error {
+
+	fmt.Println("腳本: 前置作業 git init ")
+	// 初始化Git仓库（如果尚未初始化）
+	if _, err := os.Stat(".git"); os.IsNotExist(err) {
+		if err := exec.Command("git", "init").Run(); err != nil {
+			log.Fatalf("Failed to initialize git repository: %v", err)
+		}
+	}
+
+	fmt.Println("腳本:设置远程仓库URL")
+	remoteURL := "https://github.com/ekils/ekils.github.io.git`"
+	if err := exec.Command("git", "remote", "add", "origin", remoteURL).Run(); err != nil && !isRemoteAlreadyExists(err) {
+		log.Fatalf("Failed to set remote repository: %v", err)
+	}
 
 	fmt.Println("腳本: 0")
 	// 从环境变量中获取GitHub Token
@@ -154,6 +169,11 @@ func Script(companies []string) error {
 			return nil
 		}
 	}
+}
+
+// isRemoteAlreadyExists 检查远程仓库是否已经存在
+func isRemoteAlreadyExists(err error) bool {
+	return err != nil && err.Error() == "exit status 128"
 }
 
 //api key: rnd_TUXka6fC14B8euPEBVXpN3UhFif5
