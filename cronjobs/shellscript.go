@@ -92,10 +92,11 @@ func Script(companies []string) error {
 		return err
 	}
 
-	// 打印所有环境变量（可选）
-	fmt.Println("Environment variables before executing command:")
-	for _, envVar := range combinedCmd.Env {
-		fmt.Printf("環境變數: %v \n", envVar)
+	cmd = `git ls-remote https://github.com/ekils/ekils.github.io.git`
+	combinedCmd = exec.Command("sh", "-c", cmd)
+	if err := combinedCmd.Run(); err != nil {
+		fmt.Println("執行命令時發生錯誤3-2 : Git 登入失敗:", err)
+		return err
 	}
 
 	fmt.Println("腳本: 3-3")
@@ -113,7 +114,7 @@ func Script(companies []string) error {
 		fmt.Println("沒有檔案更新, 不用推 git")
 		return nil
 	} else {
-		fmt.Printf("腳本: 3-4(有更新檔案): %v", gitStatusOutput)
+		fmt.Printf("腳本: 3-4(有更新檔案): %v\n", gitStatusOutput)
 		cmd = `
 			git add .;
 			git commit -m "Modify Version: $current_date";`
