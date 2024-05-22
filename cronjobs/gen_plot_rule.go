@@ -112,6 +112,8 @@ func PrePlot(company string) map[string][]interface{} {
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(reuslt_PE, reuslt_EPS)
+		log.Println(err)
+		log.Println(reuslt_PE, reuslt_EPS)
 	}
 
 	// 0-2 取得訂閱單裡所有的 price
@@ -119,6 +121,8 @@ func PrePlot(company string) map[string][]interface{} {
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(reuslt_Price)
+		log.Println(err)
+		log.Println(reuslt_Price)
 	}
 
 	// 0-3 收集整體的 P/E_LOG (從2015-01-02開始: 735600)
@@ -127,13 +131,17 @@ func PrePlot(company string) map[string][]interface{} {
 	dfs[company] = dataframe.LoadStructs(reuslt_PE[company]) //建立 dataframe
 	fmt.Printf("[company]: %v", company)
 	fmt.Printf("dfs[company]: %v", dfs[company])
+	log.Printf("[company]: %v", company)
+	log.Printf("dfs[company]: %v", dfs[company])
 	ordinal_data := ToOrdinal(dfs[company].Col("Date")) //新增 col: Ordinal
 	dfs[company] = dfs[company].Mutate(ordinal_data).Rename("Ordinal", "X0")
 	fmt.Printf("dfs[company]2: %v", dfs[company])
+	log.Printf("dfs[company]2: %v", dfs[company])
 	//調整資料區間:
 	dfs[company] = dfs[company].Filter(
 		dataframe.F{Colname: "Ordinal", Comparator: ">=", Comparando: int(735600)})
 	fmt.Printf("dfs[company]3: %v", dfs[company])
+	log.Printf("dfs[company]3: %v", dfs[company])
 	// 準備加入 price:
 	t_PriceDataframe := dataframe.LoadStructs(reuslt_Price[company])
 
@@ -152,17 +160,24 @@ func PrePlot(company string) map[string][]interface{} {
 	ordinal_data_p := ToOrdinal(PriceDataframe.Col("Date")) //新增 col: Ordinal
 	PriceDataframe = PriceDataframe.Mutate(ordinal_data_p).Rename("Ordinal", "X0")
 	fmt.Printf("PriceDataframe: %v", PriceDataframe)
+	log.Printf("PriceDataframe: %v", PriceDataframe)
 	// 準備加入 price 調整資料區間:
 	PriceDataframe = PriceDataframe.Filter(
 		dataframe.F{Colname: "Ordinal", Comparator: ">=", Comparando: int(735600)})
 	fmt.Printf("PriceDataframe2: %v", PriceDataframe)
 	fmt.Println("PriceDataframe3:", PriceDataframe.Nrow())
 	fmt.Println("dfs:", dfs[company].Nrow())
+	log.Printf("PriceDataframe2: %v", PriceDataframe)
+	log.Println("PriceDataframe3:", PriceDataframe.Nrow())
+	log.Println("dfs:", dfs[company].Nrow())
 	PriceSeries := PriceDataframe.Col("Price") // 加入 Price Col:
 	fmt.Printf("PriceSeries: %v", PriceSeries)
+	log.Printf("PriceSeries: %v", PriceSeries)
 	dfs[company] = dfs[company].Mutate(PriceSeries).Rename("Price", "Price")
 	fmt.Printf("dfs[company]4: %v", dfs[company])
 	fmt.Printf("dfs[company].Col(PE): %v", dfs[company].Col("PE"))
+	log.Printf("dfs[company]4: %v", dfs[company])
+	log.Printf("dfs[company].Col(PE): %v", dfs[company].Col("PE"))
 	logSeries := DataToLog10(dfs[company].Col("PE")) //新增 col: PE
 	dfs[company] = dfs[company].Mutate(logSeries).Rename("PE_LOG10", "X0")
 
@@ -178,9 +193,12 @@ func PrePlot(company string) map[string][]interface{} {
 	eps_date_group, eps_data_group = GroupedEPS(company, reuslt_EPS)
 	fmt.Println(eps_data_group)
 	fmt.Println(eps_date_group)
+	log.Println(eps_data_group)
+	log.Println(eps_date_group)
 	// 1-2. 依照 company 增加下一期的預估時間
 	eps_date_group_with_add_next = AddNextGroupEPS_Date(eps_date_group)
 	fmt.Println(eps_date_group_with_add_next)
+	log.Println(eps_date_group_with_add_next)
 
 	// 0-4 看最新 ~前20期的
 	eps_data_xxth := eps_date_group[len(eps_date_group)-1]
@@ -198,8 +216,10 @@ func PrePlot(company string) map[string][]interface{} {
 	//之後可刪-----:
 	// fmt.Println("\n")
 	fmt.Printf(" 🦖🦖🦖 [看 %s DataFrame 裡最近的資料]... 🦖🦖🦖", company)
+	log.Printf(" 🦖🦖🦖 [看 %s DataFrame 裡最近的資料]... 🦖🦖🦖", company)
 	test := watch_tail(15, filtered)
 	fmt.Println(test)
+	log.Println(test)
 	//------------
 	// 0-4 取得過去20期斜率
 	xs := filtered.Col("Ordinal")
@@ -208,37 +228,45 @@ func PrePlot(company string) map[string][]interface{} {
 	// fmt.Println("Number of rows in DataFrame:", rowCount)
 	slope = GetSlope(xs, ys)
 	fmt.Printf("-----> Slope of %s <-----: %.6f\n", company, slope)
+	log.Printf("-----> Slope of %s <-----: %.6f\n", company, slope)
 	// 0-5 std:
 	stdev = stat.StdDev(filtered.Col("PE_LOG10").Float(), nil)
 	fmt.Printf("-----> Std   of %s <-----: %.6f\n", company, stdev)
+	log.Printf("-----> Std   of %s <-----: %.6f\n", company, stdev)
 
 	// 2. 依照各區間找 price 高點:
 	fmt.Printf("eps_data_group:%v", eps_data_group)
+	log.Printf("eps_data_group:%v", eps_data_group)
 	for index := 0; index <= (len(eps_data_group) - 1); index++ {
 		if index == 0 {
 			defaults := eps_date_group[index]
 			fmt.Printf("index =0 :%v", defaults)
+			log.Printf("index =0 :%v", defaults)
 			s2t := String2Time(defaults)
 			t2int64 := s2t.Unix()
 			t2int64_with_ordinal := UnixToProlepticGregorianOrdinal(t2int64)
 			fmt.Printf("區間範圍  %s ~\n", defaults)
+			log.Printf("區間範圍  %s ~\n", defaults)
 			filtered_partial = filtered.Filter(
 				dataframe.F{Colname: "Ordinal", Comparator: ">=", Comparando: int(t2int64_with_ordinal)})
 
 		} else {
 			defaults := eps_date_group[index-1]
 			fmt.Printf("index before :%v", defaults)
+			log.Printf("index before :%v", defaults)
 			s2t := String2Time(defaults)
 			t2int64 := s2t.Unix()
 			t2int64_with_ordinal := UnixToProlepticGregorianOrdinal(t2int64)
 
 			defaults_1 := eps_date_group[index]
 			fmt.Printf("index now :%v", defaults_1)
+			log.Printf("index now :%v", defaults_1)
 			s2t_1 := String2Time(defaults_1)
 			t2int64_1 := s2t_1.Unix()
 			t2int64_with_ordinal_1 := UnixToProlepticGregorianOrdinal(t2int64_1)
 
 			fmt.Printf("區間範圍  %s ~ %s\n", defaults_1, defaults)
+			log.Printf("區間範圍  %s ~ %s\n", defaults_1, defaults)
 
 			filtered_partial = filtered.FilterAggregation(
 				dataframe.And,
@@ -251,6 +279,7 @@ func PrePlot(company string) map[string][]interface{} {
 		filteredDF := filtered.Filter(filter)
 
 		fmt.Printf("filteredDF1:%v", filteredDF)
+		log.Printf("filteredDF1:%v", filteredDF)
 
 		// 透過 filter 找 col A 的row 對應col B的值
 		pelog10_string := filteredDF.Col("PE_LOG10").Records()[0]
@@ -260,6 +289,9 @@ func PrePlot(company string) map[string][]interface{} {
 		fmt.Println("PE:", filteredDF.Col("PE").Records()[0])
 		fmt.Println("Price:", filteredDF.Col("Price").Records()[0])
 		fmt.Println("max_pelog10_list:", max_pelog10_list)
+		log.Println("PE:", filteredDF.Col("PE").Records()[0])
+		log.Println("Price:", filteredDF.Col("Price").Records()[0])
+		log.Println("max_pelog10_list:", max_pelog10_list)
 	}
 	// 3. 區間斜率
 	for i := 0; i <= len(max_pelog10_list)-1; i++ {
@@ -268,6 +300,7 @@ func PrePlot(company string) map[string][]interface{} {
 		interval_data_y0 = append(interval_data_y0, y0)
 		interval_data_y1 = append(interval_data_y1, y1)
 		fmt.Println("最高本益比區間:", y0, y1)
+		log.Println("最高本益比區間:", y0, y1)
 	}
 
 	// // 時間轉換sample:
@@ -287,6 +320,7 @@ func PrePlot(company string) map[string][]interface{} {
 	plot_info_list = append(plot_info_list, interval_data_y1)             //[6]
 	company_map_plot_info[company] = plot_info_list
 	fmt.Println("PrePlot Done -----")
+	log.Println("PrePlot Done -----")
 	return company_map_plot_info
 }
 
@@ -326,8 +360,10 @@ func GenPlot(company string, company_map_plot_info map[string][]interface{}) {
 	jsonData := Data2Json(company, eps_date_group_with_add_next, x_timestring_list, y_data_PE_Log.Float(), yminValue, ymaxValue, interval_data_y0, interval_data_y1, slope, stdev)
 
 	fmt.Println("準備進入 PythonPlot")
+	log.Println("準備進入 PythonPlot")
 	response := PythonPlot(jsonData, company)
 	fmt.Println(response)
+	log.Println(response)
 
 }
 
@@ -354,6 +390,7 @@ func PythonPlot(jsonData []byte, company string) string {
 	resp, err := http.Post(pyplotip, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return err.Error()
 	}
 	defer resp.Body.Close()
@@ -361,9 +398,11 @@ func PythonPlot(jsonData []byte, company string) string {
 	err = Data2Html(resp, company)
 	if err != nil {
 		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return err.Error()
 	}
 	fmt.Printf("PythonPlot: %v", resp.Status)
+	log.Printf("PythonPlot: %v", resp.Status)
 	return resp.Status
 }
 
@@ -372,6 +411,7 @@ func Data2Html(resp *http.Response, company string) error {
 	htmlContent, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return err
 	}
 
@@ -381,6 +421,7 @@ func Data2Html(resp *http.Response, company string) error {
 	err = os.WriteFile(filr_path, htmlContent, os.ModePerm)
 	if err != nil {
 		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return err
 	}
 	return nil
@@ -441,6 +482,7 @@ func RevertUnixToTimeStamp(timeunix int) time.Time { // 將unit轉為時間
 	t := time.Unix(unixTimestamp, 0)
 	// 打印转换后的时间对象
 	fmt.Println("Unix 时间戳对应的日期是：", t.Format("2006-01-02"))
+	log.Println("Unix 时间戳对应的日期是：", t.Format("2006-01-02"))
 	return t
 }
 
@@ -481,6 +523,7 @@ func Get_EPS_and_PE(company string) (map[string][]EPS_Plot, map[string][]PE_Plot
 			for rows.Next() {
 				if err := rows.Scan(&dateString, &rowData.PE); err != nil {
 					fmt.Println(".....:", err)
+					log.Println(".....:", err)
 					return reuslt_EPS, reuslt_PE, err
 				}
 				// fmt.Printf("append: %s", format)
@@ -500,6 +543,7 @@ func Get_EPS_and_PE(company string) (map[string][]EPS_Plot, map[string][]PE_Plot
 			for rows.Next() {
 				if err := rows.Scan(&rowData.Date, &rowData.EPS); err != nil {
 					fmt.Println(".....:", err)
+					log.Println(".....:", err)
 					return reuslt_EPS, reuslt_PE, err
 				}
 				// fmt.Printf("append: %s", format)
@@ -525,6 +569,7 @@ func Get_PriceData(company string) (map[string][]Price_Plot, error) {
 	for rows.Next() {
 		if err := rows.Scan(&rowData.Date, &rowData.Price); err != nil {
 			fmt.Println(".....:", err)
+			log.Println(".....:", err)
 			return reuslt_Price, err
 		}
 		resultList = append(resultList, rowData)
@@ -555,6 +600,8 @@ func GroupedEPS(com string, reuslt_EPS map[string][]EPS_Plot) ([]string, []float
 	}
 	fmt.Printf("******* %s 前20期 EPS ******* : ", company)
 	fmt.Println(eps_date_group)
+	log.Printf("******* %s 前20期 EPS ******* : ", company)
+	log.Println(eps_date_group)
 	return eps_date_group, eps_data_group
 }
 
@@ -598,6 +645,7 @@ func GenRandomString(howmany_byte int) string {
 	_, err := rand.Read(b)
 	if err != nil {
 		fmt.Println("Failed to generate random bytes:", err)
+		log.Println("Failed to generate random bytes:", err)
 		return err.Error()
 	}
 	for _, v := range b {

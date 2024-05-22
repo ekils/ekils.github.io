@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 )
 
 /*
@@ -28,6 +29,15 @@ func CronJobs() {
 	// var AAPL []string
 	// AAPL = append(AAPL, "AAPL")
 	// Script(AAPL)
+
+	// Step0 : 清空 html 檔案
+	cmd := `
+	rm -rf ./html/*.html;
+	`
+	combinedCmd := exec.Command("sh", "-c", cmd)
+	if err := combinedCmd.Run(); err != nil {
+		fmt.Printf("Cron Step 清空 Html檔案出錯......: %v", err)
+	}
 
 	// Step1: 更新股價資訊 parse price history:
 	reuslt, companies, err := ParsePrice("NYSE", "STOCKHISTORY", "Company")
