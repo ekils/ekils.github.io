@@ -83,7 +83,7 @@ func CronJobs() {
 	if len(ok_companies) > 0 {
 		Plot(ok_companies)
 		//Step5: Plot through Liff
-		Script(ok_companies)
+		// Script(ok_companies)
 	} else {
 		log.Println("EPS Table都沒有資料, 請先Update")
 		fmt.Println("EPS Table都沒有資料, 請先Update")

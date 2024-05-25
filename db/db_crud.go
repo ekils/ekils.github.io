@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -46,11 +47,24 @@ func AddCloumnWithTable(table string, column_name string) error {
 
 func AddPrice(table string, stock string, dictionary map[string]string) error {
 
-	for date, price := range dictionary {
+	// 获取并排序键（日期）
+	var dates []string
+	for date := range dictionary {
+		dates = append(dates, date)
+	}
+
+	sort.Slice(dates, func(i, j int) bool {
+		timeI, _ := time.Parse("2006-01-02 15:04", dates[i])
+		timeJ, _ := time.Parse("2006-01-02 15:04", dates[j])
+		return timeI.After(timeJ)
+	})
+
+	for _, dateStr := range dates {
+		priceStr := dictionary[dateStr]
 		// 將日期字符串解析為 timestamp
-		date, _ := time.Parse("2006-01-02 15:04:05", date+":00")
+		date, _ := time.Parse("2006-01-02 15:04:05", priceStr+":00")
 		// 將價格字符串轉換為 float
-		price, _ := strconv.ParseFloat(price, 64)
+		price, _ := strconv.ParseFloat(priceStr, 64)
 
 		// SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
 
@@ -73,8 +87,8 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 
 		// 如果没有行受影响，说明记录已存在，跳出循环
 		if rowsAffected == 0 {
-			log.Println("记录已存在，停止插入操作。")
-			fmt.Println("记录已存在，停止插入操作。")
+			log.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+			fmt.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
 			break
 		}
 	}
@@ -83,17 +97,64 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 
 func AddPE(table string, stock string, dict map[string]float64) error {
 
-	for date, pe := range dict {
-		// 將日期字符串解析為 timestamp
-		date, _ := time.Parse("2006-01-02 15:04:05", date)
-		// SqlScript := fmt.Sprintf("INSERT INTO %s (date, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = values(%s);", table, stock, stock, stock)
-		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
-		_, err = dbConn.Exec(SqlScript, date, pe)
+	// 创建一个切片来保存 map 的键
+	var keys []string
+	for key := range dict {
+		keys = append(keys, key)
+	}
+
+	// 对键进行排序
+	sort.Slice(keys, func(i, j int) bool {
+		timeI, _ := time.Parse("2006-01-02 15:04:05", keys[i])
+		timeJ, _ := time.Parse("2006-01-02 15:04:05", keys[j])
+		return timeI.After(timeJ)
+	})
+
+	// 按排序后的键顺序访问 map 的值
+	for _, key := range keys {
+		date, _ := time.Parse("2006-01-02 15:04:05", key)
+		pe := dict[key]
+		// fmt.Printf("日期: %s, PE: %f\n", date, pe)
+
+		// SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
+
+		// 05-25 :改 DO NOTHING
+		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO NOTHING;", table, stock)
+
+		result, err := dbConn.Exec(SqlScript, date, pe)
 		if err != nil {
 			log.Printf("SQL 執行錯誤：%v\n", err)
 			continue
 		}
+		// 检查是否插入成功
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			log.Printf("获取影响的行数时出错：%v\n", err)
+			fmt.Printf("获取影响的行数时出错：%v\n", err)
+			continue
+		}
+
+		// 如果没有行受影响，说明记录已存在，跳出循环
+		if rowsAffected == 0 {
+			log.Printf("AddPE %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+			fmt.Printf("AddPE %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+			break
+		}
+
 	}
+
+	// for date, pe := range dict {
+	// 	// 將日期字符串解析為 timestamp
+	// 	date, _ := time.Parse("2006-01-02 15:04:05", date)
+	// 	// fmt.Printf("AddPE date: %v", date)
+	// 	// SqlScript := fmt.Sprintf("INSERT INTO %s (date, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = values(%s);", table, stock, stock, stock)
+	// 	SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
+	// 	_, err = dbConn.Exec(SqlScript, date, pe)
+	// 	if err != nil {
+	// 		log.Printf("SQL 執行錯誤：%v\n", err)
+	// 		continue
+	// 	}
+	// }
 	return nil
 
 }
