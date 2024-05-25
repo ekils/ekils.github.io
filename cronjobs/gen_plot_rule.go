@@ -270,13 +270,14 @@ func PrePlot(company string) map[string][]interface{} {
 
 			filtered_partial = filtered.FilterAggregation(
 				dataframe.And,
-				dataframe.F{Colname: "Ordinal", Comparator: "<", Comparando: int(t2int64_with_ordinal)},
-				dataframe.F{Colname: "Ordinal", Comparator: ">=", Comparando: int(t2int64_with_ordinal_1)})
+				dataframe.F{Colname: "Ordinal", Comparator: "<=", Comparando: int(t2int64_with_ordinal)},
+				dataframe.F{Colname: "Ordinal", Comparator: ">", Comparando: int(t2int64_with_ordinal_1)})
 		}
 		max_price := filtered_partial.Col("Price").Max()
-
+		fmt.Println("max_price:", max_price)
+		log.Println("max_price:", max_price)
 		filter := dataframe.F{Colname: "Price", Comparator: series.Eq, Comparando: max_price}
-		filteredDF := filtered.Filter(filter)
+		filteredDF := filtered_partial.Filter(filter)
 
 		fmt.Printf("filteredDF1:%v", filteredDF)
 		log.Printf("filteredDF1:%v", filteredDF)
