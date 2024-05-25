@@ -51,13 +51,31 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 		date, _ := time.Parse("2006-01-02 15:04:05", date+":00")
 		// 將價格字符串轉換為 float
 		price, _ := strconv.ParseFloat(price, 64)
-		// SqlScript := fmt.Sprintf("INSERT INTO %s (date, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = values(%s);", table, stock, stock, stock)
-		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
 
-		_, err = dbConn.Exec(SqlScript, date, price)
+		// SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
+
+		// 05-25 改為 DO NOTHING:
+		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO NOTHING;", table, stock)
+
+		result, err := dbConn.Exec(SqlScript, date, price)
 		if err != nil {
 			log.Printf("SQL 執行錯誤：%v\n", err)
 			continue
+		}
+
+		// 检查是否插入成功
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			log.Printf("获取影响的行数时出错：%v\n", err)
+			fmt.Printf("获取影响的行数时出错：%v\n", err)
+			continue
+		}
+
+		// 如果没有行受影响，说明记录已存在，跳出循环
+		if rowsAffected == 0 {
+			log.Println("记录已存在，停止插入操作。")
+			fmt.Println("记录已存在，停止插入操作。")
+			break
 		}
 	}
 	return nil
