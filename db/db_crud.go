@@ -68,12 +68,12 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 		// 將日期字符串解析為 timestamp
 		date, _ := time.Parse("2006-01-02 15:04", k)
 
-		fmt.Printf("k: %v \n", k)
-		fmt.Printf("date: %v \n", date) //date: 2021-01-22 00:00:00 +0000 UTC
+		// fmt.Printf("k: %v \n", k)
+		// fmt.Printf("date: %v \n", date) //date: 2021-01-22 00:00:00 +0000 UTC
 
 		// 將價格字符串轉換為 float
 		price, _ := strconv.ParseFloat(priceStr, 64)
-		fmt.Printf("price: %v\n", price)
+		// fmt.Printf("price: %v\n", price)
 
 		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
 
