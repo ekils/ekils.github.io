@@ -21,9 +21,6 @@ var (
 
 func ParsePrice(sub_table string, parse_table string, col string) (string, []string, error) {
 
-	file, _ := os.Create("/logs/Write-to-PE.log")
-	log.SetOutput(file)
-
 	companies := GetSubsCompanies(sub_table, col)
 
 	today := time.Now()
@@ -32,7 +29,8 @@ func ParsePrice(sub_table string, parse_table string, col string) (string, []str
 
 	for _, company := range companies {
 		stock := strings.ToUpper(company)
-		log.Printf("===== 收集 %s 歷史股價中 =====", stock)
+		fmt.Printf("===== 收集 %s 歷史股價中 =====\n", stock)
+		log.Printf("===== 收集 %s 歷史股價中 =====\n", stock)
 		spy, _ := quote.NewQuoteFromYahoo(stock, start, end, quote.Daily, false) // format: 開盤 , 最高, 最低, 收盤, 交易量
 		data := spy.CSV()
 		var ss *rune

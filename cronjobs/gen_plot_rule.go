@@ -107,6 +107,8 @@ func PrePlot(company string) map[string][]interface{} {
 	)
 
 	// 0-1 取得訂閱單裡所有的 eps pe
+	log.Printf("// 0-1 取得訂閱單裡所有的 eps pe")
+	fmt.Printf("// 0-1 取得訂閱單裡所有的 eps pe")
 	reuslt_EPS, reuslt_PE, err := Get_EPS_and_PE(company)
 
 	if err != nil {
@@ -117,6 +119,8 @@ func PrePlot(company string) map[string][]interface{} {
 	}
 
 	// 0-2 取得訂閱單裡所有的 price
+	log.Printf("// 0-2 取得訂閱單裡所有的 price")
+	fmt.Printf("// 0-2 取得訂閱單裡所有的 price")
 	reuslt_Price, err := Get_PriceData(company)
 	if err != nil {
 		fmt.Println(err)
@@ -126,6 +130,8 @@ func PrePlot(company string) map[string][]interface{} {
 	}
 
 	// 0-3 收集整體的 P/E_LOG (從2015-01-02開始: 735600)
+	log.Printf("// 0-3 收集整體的 P/E_LOG (從2015-01-02開始: 735600)")
+	fmt.Printf("// 0-3 收集整體的 P/E_LOG (從2015-01-02開始: 735600)")
 	var dfs = make(map[string]dataframe.DataFrame)
 
 	dfs[company] = dataframe.LoadStructs(reuslt_PE[company]) //建立 dataframe
@@ -517,6 +523,8 @@ func Get_EPS_and_PE(company string) (map[string][]EPS_Plot, map[string][]PE_Plot
 			var rowData PE_Plot
 			var resultList []PE_Plot
 			var dateString string
+			log.Printf("Get_EPS_and_PE-----if")
+			fmt.Printf("Get_EPS_and_PE-----if")
 			rows, _ := db.Controller_GetContnet(com_string, company, "date")
 
 			for rows.Next() {
@@ -538,6 +546,8 @@ func Get_EPS_and_PE(company string) (map[string][]EPS_Plot, map[string][]PE_Plot
 		} else {
 			var rowData EPS_Plot
 			var resultList []EPS_Plot
+			log.Printf("Get_EPS_and_PE-----else")
+			fmt.Printf("Get_EPS_and_PE-----else")
 			rows, _ := db.Controller_GetContnet(com_string, "EPS", "date")
 			for rows.Next() {
 				if err := rows.Scan(&rowData.Date, &rowData.EPS); err != nil {
@@ -564,6 +574,8 @@ func Get_PriceData(company string) (map[string][]Price_Plot, error) {
 
 	var rowData Price_Plot
 	var resultList []Price_Plot
+	log.Printf("Get_PriceData-----")
+	fmt.Printf("Get_PriceData-----")
 	rows, _ := db.Controller_GetContnet("STOCKHISTORY", company, "date")
 	for rows.Next() {
 		if err := rows.Scan(&rowData.Date, &rowData.Price); err != nil {

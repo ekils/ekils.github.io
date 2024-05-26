@@ -47,30 +47,40 @@ func AddCloumnWithTable(table string, column_name string) error {
 
 func AddPrice(table string, stock string, dictionary map[string]string) error {
 
-	// 获取并排序键（日期）
-	var dates []string
-	for date := range dictionary {
-		dates = append(dates, date)
+	// 提取 map 的键
+	keys := make([]string, 0, len(dictionary))
+	for k := range dictionary {
+		keys = append(keys, k)
 	}
 
-	sort.Slice(dates, func(i, j int) bool {
-		timeI, _ := time.Parse("2006-01-02 15:04", dates[i])
-		timeJ, _ := time.Parse("2006-01-02 15:04", dates[j])
-		return timeI.After(timeJ)
+	// 对键进行排序
+	sort.Slice(keys, func(i, j int) bool {
+		time1, _ := time.Parse("2006-01-02 15:04", keys[i])
+		time2, _ := time.Parse("2006-01-02 15:04", keys[j])
+		// fmt.Printf(" keys[i]: %v \n", keys[i])
+		return time1.Before(time2)
 	})
 
-	for _, dateStr := range dates {
-		priceStr := dictionary[dateStr]
+	for _, k := range keys {
+
+		// fmt.Printf("dates: %v", dates)
+		priceStr := dictionary[k]
 		// 將日期字符串解析為 timestamp
-		date, _ := time.Parse("2006-01-02 15:04:05", priceStr+":00")
+		date, _ := time.Parse("2006-01-02 15:04", k)
+
+		fmt.Printf("k: %v \n", k)
+		fmt.Printf("date: %v \n", date) //date: 2021-01-22 00:00:00 +0000 UTC
+
 		// 將價格字符串轉換為 float
 		price, _ := strconv.ParseFloat(priceStr, 64)
+		fmt.Printf("price: %v\n", price)
 
-		// SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
+		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
 
-		// 05-25 改為 DO NOTHING:
-		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO NOTHING;", table, stock)
+		// // 05-25 改為 DO NOTHING:
+		// SqlScript := fmt.Sprintf(` INSERT INTO "%s" ("date", "%s") VALUES ($1, $2) ON CONFLICT ( \"%s\") DO NOTHING; `, table, stock, stock)
 
+		fmt.Printf("SqlScript: %v \n", SqlScript)
 		result, err := dbConn.Exec(SqlScript, date, price)
 		if err != nil {
 			log.Printf("SQL 執行錯誤：%v\n", err)

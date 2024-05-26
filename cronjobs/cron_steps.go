@@ -40,6 +40,8 @@ func CronJobs() {
 	}
 
 	// Step1: 更新股價資訊 parse price history:
+	fmt.Printf("/ Step1: 更新股價資訊 parse price history: ")
+	log.Printf("/ Step1: 更新股價資訊 parse price history: ")
 	reuslt, companies, err := ParsePrice("NYSE", "STOCKHISTORY", "Company")
 	if err != nil {
 		log.Println(err)
@@ -49,6 +51,8 @@ func CronJobs() {
 	fmt.Println(reuslt)
 
 	// Step2: 取得股價 parse price history:
+	fmt.Printf("// Step2: 取得股價 parse price history:")
+	log.Printf("// Step2: 取得股價 parse price history:")
 	reuslt_map_price, err := GetPrice_Historical("NYSE", "STOCKHISTORY", "Company", companies)
 	// log.Printf("reuslt_map_price: %v", reuslt_map_price)
 	if err != nil {
@@ -57,6 +61,8 @@ func CronJobs() {
 	}
 
 	// // Step3: 取得eps parse eps history:(不用parse eps 是因為這是手動增加)
+	fmt.Printf("// Step3: 取得eps parse eps history:(不用parse eps 是因為這是手動增加)")
+	log.Printf("// Step3: 取得eps parse eps history:(不用parse eps 是因為這是手動增加)")
 	reuslt_map_eps, ok_companies, err := GetEPS_Historical("NYSE", "Company", companies)
 	log.Printf("reuslt_map_eps: %v", reuslt_map_eps)
 	fmt.Printf("reuslt_map_eps: %v", reuslt_map_eps)
@@ -67,7 +73,8 @@ func CronJobs() {
 	}
 
 	// Step3: gen pe-ratio report to db :
-
+	fmt.Printf("Step3: gen pe-ratio report to db :")
+	log.Printf("Step3: gen pe-ratio report to db :")
 	response, err = GenPE_Ratio(reuslt_map_price, reuslt_map_eps)
 	if err != nil {
 		log.Println(err)
@@ -78,6 +85,8 @@ func CronJobs() {
 	}
 
 	// Step4: Gen plot link
+	fmt.Printf("/ Step4: Gen plot link")
+	log.Printf("/ Step4: Gen plot link")
 	// var ok_companies = []string{"MSFT"}
 
 	if len(ok_companies) > 0 {
