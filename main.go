@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -112,10 +113,10 @@ func main() {
 	// 設定時間
 	now := time.Now()
 
-	// hour_setting, _ := strconv.Atoi(cronjob_hoursetting)
-	// minutes_setting, _ := strconv.Atoi(cronjob_minutesetting)
-	hour_setting := now.Hour()      //測試用:  time.Minute * 2
-	minutes_setting := now.Minute() //測試用:  time.Minute * 2
+	hour_setting, _ := strconv.Atoi(cronjob_hoursetting)
+	minutes_setting, _ := strconv.Atoi(cronjob_minutesetting)
+	// hour_setting := now.Hour()      //測試用:  time.Minute * 2
+	// minutes_setting := now.Minute() //測試用:  time.Minute * 2
 
 	// 計算下一次執行時間
 	nextRun := time.Date(now.Year(), now.Month(), now.Day(), hour_setting, minutes_setting, 0, 0, now.Location()).Add(time.Minute)
@@ -133,8 +134,8 @@ func main() {
 		fmt.Println("Executing cron job...")
 		cronjobs.CronJobs()
 		// 計算下一次執行時間
-		// nextRun = nextRun.Add(time.Hour * 6)
-		nextRun = nextRun.Add(time.Minute * 20) //測試用
+		nextRun = nextRun.Add(time.Hour * 6)
+		// nextRun = nextRun.Add(time.Minute * 20) //測試用
 	}
 
 }
