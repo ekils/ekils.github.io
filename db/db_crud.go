@@ -98,7 +98,7 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 			// Date exists, update if current value is NULL
 			if !currentValue.Valid {
 				updateScript := fmt.Sprintf("UPDATE \"%s\" SET \"%s\" = $1 WHERE \"date\" = $2", table, stock)
-				fmt.Printf("updateScript: %v \n", updateScript)
+				fmt.Printf("updateScript : %v \n", updateScript)
 				result, err := dbConn.Exec(updateScript, price, date)
 				if err != nil {
 					log.Printf("SQL 執行錯誤：%v\n", err)
