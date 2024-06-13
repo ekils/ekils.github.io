@@ -75,7 +75,7 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 		price, _ := strconv.ParseFloat(priceStr, 64)
 		// fmt.Printf("price: %v\n", price)
 
-		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
+		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\" WHERE \"%s\" IS NULL;", table, stock, stock, stock, stock)
 
 		// // 05-25 改為 DO NOTHING:
 		// SqlScript := fmt.Sprintf(` INSERT INTO "%s" ("date", "%s") VALUES ($1, $2) ON CONFLICT ( \"%s\") DO NOTHING; `, table, stock, stock)
