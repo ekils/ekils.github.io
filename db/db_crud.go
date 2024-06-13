@@ -75,32 +75,74 @@ func AddPrice(table string, stock string, dictionary map[string]string) error {
 		price, _ := strconv.ParseFloat(priceStr, 64)
 		// fmt.Printf("price: %v\n", price)
 
-		SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\" WHERE \"%s\" IS NULL;", table, stock, stock, stock, stock)
+		// SqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2) ON CONFLICT (\"date\") DO UPDATE SET \"%s\" = excluded.\"%s\";", table, stock, stock, stock)
+
+		var currentValue sql.NullInt64
+		query := fmt.Sprintf("SELECT \"%s\" FROM \"%s\" WHERE \"date\" = $1", stock, table)
+		row := dbConn.QueryRow(query, date)
+		err := row.Scan(&currentValue)
+		switch {
+		case err == sql.ErrNoRows:
+			// Date does not exist, insert new record
+			sqlScript := fmt.Sprintf("INSERT INTO \"%s\" (\"date\", \"%s\") VALUES ($1, $2)", table, stock)
+			_, err := dbConn.Exec(sqlScript, date, price)
+			if err != nil {
+				log.Printf("SQL 執行錯誤：%v\n", err)
+				continue
+			}
+		case err != nil:
+			log.Printf("SQL 執行錯誤：%v\n", err)
+			continue
+		default:
+			// Date exists, update if current value is NULL
+			if !currentValue.Valid {
+				updateScript := fmt.Sprintf("UPDATE \"%s\" SET \"%s\" = $1 WHERE \"date\" = $2", table, stock)
+				result, err := dbConn.Exec(updateScript, price, date)
+				if err != nil {
+					log.Printf("SQL 執行錯誤：%v\n", err)
+					continue
+				}
+				// 检查是否插入成功
+				rowsAffected, err := result.RowsAffected()
+				if err != nil {
+					log.Printf("获取影响的行数时出错：%v\n", err)
+					fmt.Printf("获取影响的行数时出错：%v\n", err)
+					continue
+				}
+
+				// 如果没有行受影响，说明记录已存在，跳出循环
+				if rowsAffected == 0 {
+					log.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+					fmt.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+					break
+				}
+			}
+		}
 
 		// // 05-25 改為 DO NOTHING:
 		// SqlScript := fmt.Sprintf(` INSERT INTO "%s" ("date", "%s") VALUES ($1, $2) ON CONFLICT ( \"%s\") DO NOTHING; `, table, stock, stock)
 
-		fmt.Printf("SqlScript: %v \n", SqlScript)
-		result, err := dbConn.Exec(SqlScript, date, price)
-		if err != nil {
-			log.Printf("SQL 執行錯誤：%v\n", err)
-			continue
-		}
+		// fmt.Printf("SqlScript: %v \n", SqlScript)
+		// result, err := dbConn.Exec(SqlScript, date, price)
+		// if err != nil {
+		// 	log.Printf("SQL 執行錯誤：%v\n", err)
+		// 	continue
+		// }
 
-		// 检查是否插入成功
-		rowsAffected, err := result.RowsAffected()
-		if err != nil {
-			log.Printf("获取影响的行数时出错：%v\n", err)
-			fmt.Printf("获取影响的行数时出错：%v\n", err)
-			continue
-		}
+		// // 检查是否插入成功
+		// rowsAffected, err := result.RowsAffected()
+		// if err != nil {
+		// 	log.Printf("获取影响的行数时出错：%v\n", err)
+		// 	fmt.Printf("获取影响的行数时出错：%v\n", err)
+		// 	continue
+		// }
 
-		// 如果没有行受影响，说明记录已存在，跳出循环
-		if rowsAffected == 0 {
-			log.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
-			fmt.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
-			break
-		}
+		// // 如果没有行受影响，说明记录已存在，跳出循环
+		// if rowsAffected == 0 {
+		// 	log.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+		// 	fmt.Printf("AddPrice %v %v 日期紀錄已存在，停止插入操作。", stock, date)
+		// 	break
+		// }
 	}
 	return nil
 }

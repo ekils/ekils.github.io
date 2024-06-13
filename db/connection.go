@@ -12,8 +12,8 @@ var (
 )
 
 func init() {
-	// dbConn, err = sql.Open("postgres", "user=danny password=danny dbname=gopostgres sslmode=disable") // local
-	dbConn, err = sql.Open("postgres", "host=dpg-cp5h5df79t8c73eu79ag-a.oregon-postgres.render.com port=5432 user=danny password=K7GFIvEnOmJ68MHckRoHZMe6Yub9YsCT dbname=gopostgres") // render
+	dbConn, err = sql.Open("postgres", "user=danny password=danny dbname=gopostgres sslmode=disable") // local
+	// dbConn, err = sql.Open("postgres", "host=dpg-cp5h5df79t8c73eu79ag-a.oregon-postgres.render.com port=5432 user=danny password=K7GFIvEnOmJ68MHckRoHZMe6Yub9YsCT dbname=gopostgres") // render
 
 	if err != nil {
 		panic(err.Error())
